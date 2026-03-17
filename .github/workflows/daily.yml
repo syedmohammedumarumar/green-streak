@@ -2,8 +2,8 @@ name: 🟢 Daily Green Commit
 
 on:
   schedule:
-    - cron: '0 9 * * *'   # Runs every day at 9:00 AM UTC
-  workflow_dispatch:        # Also lets you trigger it manually
+    - cron: '0 9 * * *'   # Runs daily at 9:00 AM UTC (2:30 PM IST)
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,17 +13,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Make daily update
         run: |
           echo "$(date '+%Y-%m-%d %H:%M:%S') — daily update" >> log.txt
 
-      - name: Commit and push
+      - name: Commit and push changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "syedmohammedumarumar"
+          git config --global user.email "mohammedumarsyed47@gmail.com"
+
           git add log.txt
-          git commit -m "🟢 daily update — $(date '+%Y-%m-%d')"
-          git push
+          git commit -m "🟢 daily update — $(date '+%Y-%m-%d')" || echo "No changes to commit"
+
+          git push origin HEAD:main
