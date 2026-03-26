@@ -1,8 +1,8 @@
-name: 🟢 Daily Green Commit
+name: 🟢 Smart Daily Commits
 
 on:
   schedule:
-    - cron: '0 9 * * *'   # Runs daily at 9:00 AM UTC (2:30 PM IST)
+    - cron: '0 3,9,15 * * *'   # 3 times per day
   workflow_dispatch:
 
 permissions:
@@ -16,16 +16,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Make daily update
+      - name: Check if weekend
         run: |
-          echo "$(date '+%Y-%m-%d %H:%M:%S') — daily update" >> log.txt
+          DAY=$(date +%u)
+          if [ "$DAY" -ge 6 ]; then
+            echo "Weekend - skipping commit"
+            echo "SKIP=true" >> $GITHUB_ENV
+          fi
 
-      - name: Commit and push changes
+      - name: Make update with variation
+        if: env.SKIP != 'true'
+        run: |
+          echo "$(date '+%Y-%m-%d %H:%M:%S') — update $RANDOM" >> log.txt
+
+      - name: Commit and push
+        if: env.SKIP != 'true'
         run: |
           git config --global user.name "syedmohammedumarumar"
           git config --global user.email "mohammedumarsyed47@gmail.com"
 
           git add log.txt
-          git commit -m "🟢 daily update — $(date '+%Y-%m-%d')" || echo "No changes to commit"
+          git commit -m "update — $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
 
           git push origin HEAD:main
